@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --color-primary: #004ac6;
+    --color-primary-container: #2563eb;
+    --color-surface: #faf8ff;
+    --color-surface-container-low: #f2f3ff;
+    --color-surface-container: #eaedff;
+    --color-surface-container-lowest: #ffffff;
+    --color-on-surface: #131b2e;
+    --color-on-surface-variant: #434655;
+    --color-outline: #737686;
+  }
+
+  .dark {
+    --color-primary: #89b4ff;
+    --color-primary-container: #004ac6;
+    --color-surface: #121622;
+    --color-surface-container-low: #181d2c;
+    --color-surface-container: #1e2436;
+    --color-surface-container-lowest: #242b40;
+    --color-on-surface: #eef0ff;
+    --color-on-surface-variant: #b0b4c8;
+    --color-outline: #898d9e;
+  }
+
+  html, body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    overscroll-behavior-y: none;
+    background-color: #faf8ff;
+    color: #131b2e;
+  }
+
+  html.dark, html.dark body {
+    background-color: #121622;
+    color: #eef0ff;
+  }
+
+  code, kbd, samp, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+.material-symbols-outlined.fill {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}

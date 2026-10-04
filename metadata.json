@@ -1,0 +1,6 @@
+{
+  "name": "TechHub Pro - Tra Cứu Bảo Hành & Giá Thu Cũ",
+  "description": "Trung tâm công cụ tra cứu bảo hành Xiaomi, Samsung, Apple, bảng giá thu cũ đổi mới, tính giá nhập trả máy và quản lý liên kết nhanh cho thợ và cửa hàng điện thoại.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
