@@ -58,6 +58,19 @@ export default function App() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingTool, setEditingTool] = useState<ToolItem | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+
+  // Custom user categories
+  const [customCategories, setCustomCategories] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('toolhub_custom_categories_v1');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // ignore
+    }
+    return ['warranty', 'trade_in', 'tech'];
+  });
 
   // Toast
   const [toastMessage, setToastMessage] = useState('');
@@ -219,6 +232,13 @@ export default function App() {
   const handleSaveTool = async (toolData: Omit<ToolItem, 'id' | 'clickCount'> & { id?: string }) => {
     const now = new Date().toISOString();
     const toolId = toolData.id || `tool_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+    // Auto-register new custom category if not existing
+    if (toolData.category && !customCategories.includes(toolData.category)) {
+      const updated = [...customCategories, toolData.category];
+      setCustomCategories(updated);
+      localStorage.setItem('toolhub_custom_categories_v1', JSON.stringify(updated));
+    }
 
     if (currentUser) {
       try {
@@ -404,11 +424,16 @@ export default function App() {
   // Dynamic category counts
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: tools.length };
+    customCategories.forEach(cat => {
+      counts[cat] = 0;
+    });
     tools.forEach(t => {
-      counts[t.category] = (counts[t.category] || 0) + 1;
+      if (t.category) {
+        counts[t.category] = (counts[t.category] || 0) + 1;
+      }
     });
     return counts;
-  }, [tools]);
+  }, [tools, customCategories]);
 
   const availableCategories = useMemo(() => {
     const keys = Object.keys(categoryCounts).filter(k => k !== 'all');
@@ -432,10 +457,14 @@ export default function App() {
         onLogin={handleLogin}
         onLogout={handleLogout}
         isSyncing={isSyncing}
+        currentTab={bottomTab}
+        onSelectTab={setBottomTab}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        pinnedCount={pinnedTools.length}
       />
 
       {/* Main Content Viewport */}
-      <main className="flex flex-col relative w-full pt-16 pb-36 sm:pb-32 px-4 max-w-2xl sm:max-w-4xl mx-auto flex-1 gap-y-4 sm:gap-y-5">
+      <main className="flex flex-col relative w-full pt-16 pb-36 md:pb-16 px-4 max-w-2xl sm:max-w-4xl mx-auto flex-1 gap-y-4 sm:gap-y-5">
         {/* Header Banner & Status */}
         <div className="relative overflow-hidden rounded-2xl bg-[#f2f3ff] dark:bg-[#181d2c] p-4 sm:p-5 shadow-xs border border-black/[0.04] dark:border-white/[0.04]">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 relative z-10">
@@ -553,31 +582,43 @@ export default function App() {
             )}
           </div>
 
-          {/* Filter Pills */}
-          {availableCategories.length > 1 && (
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              {availableCategories.map(cat => {
-                const label = CATEGORY_NAMES[cat] || cat;
-                const count = categoryCounts[cat] || 0;
-                const isSelected = selectedCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`flex-shrink-0 h-8 px-3 rounded-full text-xs font-semibold flex items-center gap-1 shadow-xs transition-all cursor-pointer active:scale-95 ${
-                      isSelected
-                        ? 'bg-[#004ac6] text-white'
-                        : 'bg-white dark:bg-[#1c2336] text-[#434655] dark:text-[#b0b4c8] border border-black/[0.04] dark:border-white/[0.06] hover:bg-[#f2f3ff]'
-                    }`}
-                    type="button"
-                  >
-                    <span>{label}</span>
-                    <span className="opacity-75 text-[11px]">({count})</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          {/* Filter Pills with '+ Thêm nhóm' */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+            {availableCategories.map(cat => {
+              const label = CATEGORY_NAMES[cat] || cat;
+              const count = categoryCounts[cat] || 0;
+              const isSelected = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`flex-shrink-0 h-8 px-3 rounded-full text-xs font-semibold flex items-center gap-1 shadow-xs transition-all cursor-pointer active:scale-95 ${
+                    isSelected
+                      ? 'bg-[#004ac6] text-white'
+                      : 'bg-white dark:bg-[#1c2336] text-[#434655] dark:text-[#b0b4c8] border border-black/[0.04] dark:border-white/[0.06] hover:bg-[#f2f3ff]'
+                  }`}
+                  type="button"
+                >
+                  <span>{label}</span>
+                  <span className="opacity-75 text-[11px]">({count})</span>
+                </button>
+              );
+            })}
+
+            {/* Thêm nhóm phân loại mới button */}
+            <button
+              onClick={() => {
+                setNewCategoryName('');
+                setIsAddCategoryModalOpen(true);
+              }}
+              className="flex-shrink-0 h-8 px-2.5 rounded-full text-xs font-semibold flex items-center gap-1 bg-[#eaedff] dark:bg-[#242b40] text-[#004ac6] dark:text-[#89b4ff] hover:bg-[#d8e0ff] transition-all cursor-pointer border border-[#004ac6]/20 active:scale-95"
+              type="button"
+              title="Thêm nhóm phân loại mới"
+            >
+              <span className="material-symbols-outlined text-[15px]">add</span>
+              <span>Thêm nhóm</span>
+            </button>
+          </div>
         </div>
 
         {/* Pinned Quick Access (if any) */}
@@ -716,7 +757,87 @@ export default function App() {
         }}
         onSave={handleSaveTool}
         editingTool={editingTool}
+        availableCategories={availableCategories.map(cat => ({
+          id: cat,
+          name: CATEGORY_NAMES[cat] || cat
+        }))}
+        defaultCategory={selectedCategory}
       />
+
+      {/* Modal Tạo nhóm phân loại mới */}
+      {isAddCategoryModalOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#131b2e]/50 backdrop-blur-xs p-4 animate-fade-in"
+          onClick={() => setIsAddCategoryModalOpen(false)}
+        >
+          <div 
+            className="w-full max-w-sm bg-white dark:bg-[#1c2336] rounded-2xl p-5 shadow-2xl flex flex-col gap-3.5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-1 border-b border-black/[0.04] dark:border-white/[0.06]">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#004ac6] dark:text-[#89b4ff] text-[20px]">create_new_folder</span>
+                <h4 className="font-bold text-sm text-[#131b2e] dark:text-[#eef0ff]">Tạo nhóm phân loại mới</h4>
+              </div>
+              <button 
+                onClick={() => setIsAddCategoryModalOpen(false)}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[#737686] hover:bg-[#f2f3ff] dark:hover:bg-[#242b40]"
+                type="button"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+
+            <p className="text-xs text-[#5a5e72] dark:text-[#9da2ba]">
+              Tạo nhóm phân loại tùy chỉnh để sắp xếp các công cụ (ví dụ: Sim ghép, Tra IMEI, Phần cứng, Mạng xã hội...).
+            </p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const trimmed = newCategoryName.trim();
+                if (!trimmed) return;
+                if (!customCategories.includes(trimmed)) {
+                  const updated = [...customCategories, trimmed];
+                  setCustomCategories(updated);
+                  localStorage.setItem('toolhub_custom_categories_v1', JSON.stringify(updated));
+                }
+                setSelectedCategory(trimmed);
+                setIsAddCategoryModalOpen(false);
+                setNewCategoryName('');
+                showToast(`Đã thêm nhóm: "${trimmed}"`);
+              }}
+              className="flex flex-col gap-3"
+            >
+              <input
+                type="text"
+                autoFocus
+                placeholder="Nhập tên nhóm mới..."
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                className="w-full h-10 px-3 rounded-xl bg-[#f2f3ff] dark:bg-[#242b40] text-sm text-[#131b2e] dark:text-[#eef0ff] focus:bg-white dark:focus:bg-[#181d2c] focus:ring-2 focus:ring-[#004ac6] focus:outline-none transition-all"
+              />
+
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsAddCategoryModalOpen(false)}
+                  className="h-9 px-3.5 rounded-xl text-xs font-semibold text-[#5a5e72] dark:text-[#9da2ba] hover:bg-[#f2f3ff] cursor-pointer"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={!newCategoryName.trim()}
+                  className="h-9 px-4 rounded-xl bg-[#004ac6] text-white text-xs font-semibold shadow-xs hover:bg-[#2563eb] disabled:opacity-50 cursor-pointer transition-all"
+                >
+                  Tạo nhóm ngay
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Settings Modal (Cài đặt & Đồng bộ Firebase) */}
       {isSettingsOpen && (

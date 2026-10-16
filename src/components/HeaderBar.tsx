@@ -10,6 +10,10 @@ interface HeaderBarProps {
   onLogin: () => void;
   onLogout: () => void;
   isSyncing?: boolean;
+  currentTab: 'tools' | 'pinned' | 'categories' | 'settings';
+  onSelectTab: (tab: 'tools' | 'pinned' | 'categories' | 'settings') => void;
+  onOpenSettings: () => void;
+  pinnedCount?: number;
 }
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({
@@ -20,29 +24,76 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   currentUser,
   onLogin,
   onLogout,
-  isSyncing
+  isSyncing,
+  currentTab,
+  onSelectTab,
+  onOpenSettings,
+  pinnedCount = 0
 }) => {
   return (
     <header className="fixed top-0 w-full z-50 bg-[#faf8ff]/90 dark:bg-[#121622]/90 backdrop-blur-xl pt-safe border-b border-black/[0.04] dark:border-white/[0.06] transition-colors">
-      <div className="h-16 px-3 sm:px-4 max-w-4xl mx-auto flex items-center justify-between gap-2">
+      <div className="h-16 px-3 sm:px-5 max-w-5xl mx-auto flex items-center justify-between gap-3">
         {/* Brand */}
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-[#004ac6] flex items-center justify-center shadow-[0_2px_8px_rgba(0,74,198,0.28)] shrink-0">
             <span className="material-symbols-outlined text-white text-[20px]">hub</span>
           </div>
-          <div className="flex items-center gap-1.5 min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
             <span className="text-[17px] font-bold tracking-tight text-[#131b2e] dark:text-[#eef0ff]">
               ToolHub
             </span>
-            <div className="hidden xs:flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-semibold">
+            <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-semibold">
               <span className="material-symbols-outlined text-[12px]">cloud_sync</span>
               <span>Firebase</span>
             </div>
           </div>
         </div>
 
+        {/* Desktop Navigation Tabs (Hidden on Mobile) */}
+        <nav className="hidden md:flex items-center gap-1 bg-black/[0.03] dark:bg-white/[0.05] p-1 rounded-2xl border border-black/[0.04] dark:border-white/[0.06]">
+          <button
+            onClick={() => onSelectTab('tools')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              currentTab === 'tools'
+                ? 'bg-white dark:bg-[#1f2638] text-[#004ac6] dark:text-[#89b4ff] shadow-xs'
+                : 'text-[#5a5e72] dark:text-[#9da2ba] hover:text-[#131b2e] dark:hover:text-white'
+            }`}
+            type="button"
+          >
+            <span className="material-symbols-outlined text-[17px]">grid_view</span>
+            <span>Tất cả công cụ</span>
+          </button>
+
+          <button
+            onClick={() => onSelectTab('pinned')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              currentTab === 'pinned'
+                ? 'bg-white dark:bg-[#1f2638] text-[#004ac6] dark:text-[#89b4ff] shadow-xs'
+                : 'text-[#5a5e72] dark:text-[#9da2ba] hover:text-[#131b2e] dark:hover:text-white'
+            }`}
+            type="button"
+          >
+            <span className="material-symbols-outlined text-[17px]">bookmark</span>
+            <span>Yêu thích</span>
+            {pinnedCount > 0 && (
+              <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-[#004ac6]/10 dark:bg-[#89b4ff]/20 text-[10px] font-bold">
+                {pinnedCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={onOpenSettings}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[#5a5e72] dark:text-[#9da2ba] hover:text-[#131b2e] dark:hover:text-white transition-all cursor-pointer"
+            type="button"
+          >
+            <span className="material-symbols-outlined text-[17px]">tune</span>
+            <span>Cài đặt & Dữ liệu</span>
+          </button>
+        </nav>
+
         {/* Action icons */}
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Cloud Sync Pulse Indicator */}
           {isSyncing && (
             <span 
@@ -82,7 +133,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
               <button
                 onClick={onLogout}
                 title={`Đăng xuất (${currentUser.email || currentUser.displayName})`}
-                className="flex items-center gap-1 h-9 px-2 sm:px-2.5 rounded-xl bg-[#f2f3ff] dark:bg-[#1e2436] hover:bg-red-50 dark:hover:bg-red-950/40 text-xs text-[#131b2e] dark:text-[#eef0ff] transition-all cursor-pointer border border-black/[0.04] dark:border-white/[0.06]"
+                className="flex items-center gap-1.5 h-9 px-2 sm:px-2.5 rounded-xl bg-[#f2f3ff] dark:bg-[#1e2436] hover:bg-red-50 dark:hover:bg-red-950/40 text-xs text-[#131b2e] dark:text-[#eef0ff] transition-all cursor-pointer border border-black/[0.04] dark:border-white/[0.06]"
                 type="button"
               >
                 {currentUser.photoURL ? (
@@ -94,7 +145,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
                 ) : (
                   <span className="material-symbols-outlined text-[18px] text-[#004ac6]">account_circle</span>
                 )}
-                <span className="hidden sm:inline font-medium max-w-[80px] truncate text-[11px]">
+                <span className="hidden sm:inline font-medium max-w-[90px] truncate text-[11px]">
                   {currentUser.displayName?.split(' ')[0] || 'Tài khoản'}
                 </span>
                 <span className="material-symbols-outlined text-[16px] text-[#737686]">logout</span>
@@ -103,7 +154,7 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           ) : (
             <button
               onClick={onLogin}
-              className="flex items-center gap-1 h-9 px-2.5 sm:px-3 rounded-xl bg-white dark:bg-[#1e2436] hover:bg-[#f2f3ff] dark:hover:bg-[#252d42] text-xs font-semibold text-[#131b2e] dark:text-[#eef0ff] border border-black/[0.08] dark:border-white/[0.08] shadow-xs active:scale-95 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 h-9 px-2.5 sm:px-3 rounded-xl bg-white dark:bg-[#1e2436] hover:bg-[#f2f3ff] dark:hover:bg-[#252d42] text-xs font-semibold text-[#131b2e] dark:text-[#eef0ff] border border-black/[0.08] dark:border-white/[0.08] shadow-xs active:scale-95 transition-all cursor-pointer"
               type="button"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -120,10 +171,11 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           <button
             onClick={onOpenAddModal}
             aria-label="Thêm công cụ mới"
-            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#004ac6] text-white shadow-[0_2px_8px_rgba(0,74,198,0.32)] hover:bg-[#2563eb] active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 h-9 sm:h-10 px-3 sm:px-3.5 rounded-xl bg-[#004ac6] text-white shadow-[0_2px_8px_rgba(0,74,198,0.32)] hover:bg-[#2563eb] active:scale-95 transition-all cursor-pointer font-semibold text-xs"
             type="button"
           >
-            <span className="material-symbols-outlined text-[20px] sm:text-[22px]">add</span>
+            <span className="material-symbols-outlined text-[19px]">add</span>
+            <span className="hidden sm:inline">Thêm liên kết</span>
           </button>
         </div>
       </div>

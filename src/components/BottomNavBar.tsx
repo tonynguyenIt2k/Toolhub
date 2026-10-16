@@ -12,7 +12,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
   onOpenAddModal
 }) => {
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 pointer-events-none flex justify-center items-end pb-[max(env(safe-area-inset-bottom),12px)] px-3 sm:px-4">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 pointer-events-none flex justify-center items-end pb-[max(env(safe-area-inset-bottom),12px)] px-3">
       {/* Floating Glassmorphic Pill */}
       <div className="pointer-events-auto w-full max-w-[420px] rounded-[32px] p-1.5 sm:p-2 bg-white/95 dark:bg-[#1a2030]/95 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_16px_40px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-between gap-0.5 sm:gap-1 transition-all">
         {/* Tab 1: Công cụ */}

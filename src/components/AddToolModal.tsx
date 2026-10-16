@@ -6,44 +6,89 @@ interface AddToolModalProps {
   onClose: () => void;
   onSave: (toolData: Omit<ToolItem, 'id' | 'clickCount'> & { id?: string }) => void;
   editingTool?: ToolItem | null;
+  availableCategories?: { id: string; name: string }[];
+  defaultCategory?: string;
 }
 
 const AVAILABLE_ICONS = [
-  'link', 'shield', 'sell', 'smartphone', 'brush', 'code', 'menu_book', 'api', 'monitoring', 'folder'
+  'link', 'shield', 'sell', 'smartphone', 'brush', 'code', 'menu_book', 'api', 'monitoring', 'folder',
+  'build', 'shopping_bag', 'receipt_long', 'support_agent', 'cloud', 'security'
 ];
 
 export const AddToolModal: React.FC<AddToolModalProps> = ({
   isOpen,
   onClose,
   onSave,
-  editingTool
+  editingTool,
+  availableCategories = [],
+  defaultCategory
 }) => {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [label, setLabel] = useState('');
   const [category, setCategory] = useState('warranty');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategoryInput, setCustomCategoryInput] = useState('');
   const [icon, setIcon] = useState('link');
   const [isPinned, setIsPinned] = useState(false);
   const [error, setError] = useState('');
+
+  // Built-in starter categories
+  const baseCategories = [
+    { id: 'warranty', name: 'Bảo hành (Xiaomi, Samsung, Apple...)' },
+    { id: 'trade_in', name: 'Giá thu cũ (CellphoneS, TGDĐ...)' },
+    { id: 'tech', name: 'Kỹ thuật / ROM / IMEI' },
+    { id: 'accessories', name: 'Phụ kiện & Linh kiện' },
+    { id: 'tools', name: 'Công cụ tiện ích' }
+  ];
+
+  // Merge availableCategories from tools without duplicate IDs
+  const mergedCategories = React.useMemo(() => {
+    const map = new Map<string, string>();
+    baseCategories.forEach(c => map.set(c.id, c.name));
+    availableCategories.forEach(c => {
+      if (c.id !== 'all') {
+        map.set(c.id, c.name || c.id);
+      }
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [availableCategories]);
 
   useEffect(() => {
     if (editingTool) {
       setName(editingTool.name);
       setUrl(editingTool.url);
       setLabel(editingTool.label || '');
-      setCategory(editingTool.category || 'warranty');
+      const cat = editingTool.category || 'warranty';
+      const existsInList = mergedCategories.some(c => c.id === cat);
+      if (existsInList) {
+        setCategory(cat);
+        setIsCustomCategory(false);
+        setCustomCategoryInput('');
+      } else {
+        setCategory('__custom__');
+        setIsCustomCategory(true);
+        setCustomCategoryInput(cat);
+      }
       setIcon(editingTool.icon || 'link');
       setIsPinned(!!editingTool.isPinned);
     } else {
       setName('');
       setUrl('');
       setLabel('');
-      setCategory('warranty');
+      if (defaultCategory && defaultCategory !== 'all') {
+        setCategory(defaultCategory);
+        setIsCustomCategory(false);
+      } else {
+        setCategory(mergedCategories[0]?.id || 'warranty');
+        setIsCustomCategory(false);
+      }
+      setCustomCategoryInput('');
       setIcon('link');
       setIsPinned(false);
     }
     setError('');
-  }, [editingTool, isOpen]);
+  }, [editingTool, isOpen, defaultCategory, mergedCategories]);
 
   if (!isOpen) return null;
 
@@ -67,8 +112,19 @@ export const AddToolModal: React.FC<AddToolModalProps> = ({
     try {
       new URL(cleanUrl);
     } catch {
-      setError('Đường dẫn URL không hợp lệ');
+      setError('Đường dẫn URL không hợp lệ (Ví dụ: https://domain.com)');
       return;
+    }
+
+    // Determine final category string
+    let finalCategory = category;
+    if (isCustomCategory) {
+      const cleanCustom = customCategoryInput.trim();
+      if (!cleanCustom) {
+        setError('Vui lòng nhập tên cho nhóm phân loại mới');
+        return;
+      }
+      finalCategory = cleanCustom;
     }
 
     onSave({
@@ -76,7 +132,7 @@ export const AddToolModal: React.FC<AddToolModalProps> = ({
       name: name.trim(),
       url: cleanUrl,
       label: label.trim() || 'Công cụ',
-      category: category || 'custom',
+      category: finalCategory,
       icon: icon || 'link',
       isPinned
     });
@@ -94,7 +150,7 @@ export const AddToolModal: React.FC<AddToolModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-1">
+        <div className="flex items-center justify-between pb-1 border-b border-black/[0.04] dark:border-white/[0.06]">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[#004ac6] dark:text-[#89b4ff] text-[22px]">
               {editingTool ? 'edit_note' : 'add_circle'}
@@ -164,22 +220,77 @@ export const AddToolModal: React.FC<AddToolModalProps> = ({
             />
           </div>
 
-          {/* Nhóm phân loại */}
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-[#434655] dark:text-[#b0b4c8]">
-              Nhóm phân loại
-            </label>
-            <select 
-              className="h-10 px-3 rounded-xl bg-[#f2f3ff] dark:bg-[#242b40] text-[#131b2e] dark:text-[#eef0ff] text-sm focus:bg-white dark:focus:bg-[#181d2c] focus:ring-2 focus:ring-[#004ac6] focus:outline-none cursor-pointer"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="warranty">Bảo hành (Xiaomi, Samsung, Apple...)</option>
-              <option value="trade_in">Giá thu cũ (CellphoneS, TGDĐ, FPT...)</option>
-              <option value="dev">Kỹ thuật / ROM (SamFw, MiFirm...)</option>
-              <option value="design">Thiết kế & Giao diện</option>
-              <option value="custom">Mục tùy chỉnh khác</option>
-            </select>
+          {/* Nhóm phân loại - Có hỗ trợ tự thêm nhóm mới */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-[#434655] dark:text-[#b0b4c8]">
+                Nhóm phân loại
+              </label>
+              {!isCustomCategory ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCustomCategory(true);
+                    setCustomCategoryInput('');
+                  }}
+                  className="text-[11px] font-semibold text-[#004ac6] dark:text-[#89b4ff] hover:underline flex items-center gap-0.5 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[14px]">add</span>
+                  <span>Tự tạo nhóm mới</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCustomCategory(false);
+                    setCategory(mergedCategories[0]?.id || 'warranty');
+                  }}
+                  className="text-[11px] font-semibold text-[#737686] hover:underline cursor-pointer"
+                >
+                  Chọn nhóm có sẵn
+                </button>
+              )}
+            </div>
+
+            {isCustomCategory ? (
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="material-symbols-outlined absolute left-3 top-2.5 text-[#004ac6] dark:text-[#89b4ff] text-[18px]">
+                    folder_open
+                  </span>
+                  <input
+                    type="text"
+                    autoFocus
+                    placeholder="Nhập tên nhóm mới (VD: Phần cứng, Sim số, Tra IMEI...)"
+                    value={customCategoryInput}
+                    onChange={(e) => setCustomCategoryInput(e.target.value)}
+                    className="w-full h-10 pl-9 pr-3 rounded-xl bg-[#f2f3ff] dark:bg-[#242b40] text-[#131b2e] dark:text-[#eef0ff] text-sm focus:bg-white dark:focus:bg-[#181d2c] focus:ring-2 focus:ring-[#004ac6] focus:outline-none transition-all border border-[#004ac6]/30"
+                  />
+                </div>
+              </div>
+            ) : (
+              <select 
+                className="h-10 px-3 rounded-xl bg-[#f2f3ff] dark:bg-[#242b40] text-[#131b2e] dark:text-[#eef0ff] text-sm focus:bg-white dark:focus:bg-[#181d2c] focus:ring-2 focus:ring-[#004ac6] focus:outline-none cursor-pointer"
+                value={category}
+                onChange={(e) => {
+                  if (e.target.value === '__add_new__') {
+                    setIsCustomCategory(true);
+                    setCustomCategoryInput('');
+                  } else {
+                    setCategory(e.target.value);
+                  }
+                }}
+              >
+                {mergedCategories.map(cat => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+                <option value="__add_new__" className="font-bold text-[#004ac6]">
+                  ➕ + Thêm nhóm phân loại mới...
+                </option>
+              </select>
+            )}
           </div>
 
           {/* Chọn Icon */}
@@ -232,7 +343,7 @@ export const AddToolModal: React.FC<AddToolModalProps> = ({
               className="h-10 px-5 rounded-xl bg-[#004ac6] text-white text-xs font-semibold shadow-sm hover:bg-[#2563eb] active:scale-95 transition-all cursor-pointer"
               type="submit"
             >
-              {editingTool ? 'Lưu thay đổi' : 'Lưu vào máy'}
+              {editingTool ? 'Lưu thay đổi' : 'Lưu vào Firebase'}
             </button>
           </div>
         </form>
