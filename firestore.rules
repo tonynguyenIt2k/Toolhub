@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened global helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidTool(data) {
+      return data.userId is string && data.userId == request.auth.uid
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.url is string && data.url.size() > 0 && data.url.size() <= 500
+        && data.category is string && data.category.size() > 0 && data.category.size() <= 50
+        && (!('label' in data) || (data.label is string && data.label.size() <= 50))
+        && (!('icon' in data) || (data.icon is string && data.icon.size() <= 50))
+        && (!('isPinned' in data) || data.isPinned is bool)
+        && (!('clickCount' in data) || data.clickCount is number);
+    }
+
+    // Tools collection: private to the authenticated creator
+    match /tools/{toolId} {
+      allow get: if isSignedIn() && isValidId(toolId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(toolId) && isValidTool(incoming()) && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(toolId) && isValidTool(incoming()) && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && isValidId(toolId) && existing().userId == request.auth.uid;
+    }
+  }
+}

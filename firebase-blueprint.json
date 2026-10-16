@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "tool": {
+      "title": "Tool",
+      "description": "A saved tool or link belonging to an authenticated user",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Document ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who created the tool"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Name of the tool"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Display badge label"
+        },
+        "url": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Target website URL"
+        },
+        "category": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Category classification key"
+        },
+        "icon": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Material symbol icon name"
+        },
+        "isPinned": {
+          "type": "boolean",
+          "description": "Whether the tool is pinned to the quick access bar"
+        },
+        "clickCount": {
+          "type": "number",
+          "description": "Number of times this tool link has been opened"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp ISO string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp ISO string"
+        }
+      },
+      "required": [
+        "userId",
+        "name",
+        "url",
+        "category"
+      ]
+    }
+  },
+  "firestore": {
+    "/tools/{toolId}": {
+      "schema": "tool",
+      "description": "Collection of tools, readable and manageable by their owner"
+    }
+  }
+}
