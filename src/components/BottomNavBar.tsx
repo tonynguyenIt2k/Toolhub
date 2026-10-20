@@ -4,117 +4,102 @@ interface BottomNavBarProps {
   currentTab: 'tools' | 'pinned' | 'categories' | 'settings';
   onSelectTab: (tab: 'tools' | 'pinned' | 'categories' | 'settings') => void;
   onOpenAddModal: () => void;
+  onExportBackup?: () => void;
+  pinnedCount?: number;
 }
 
 export const BottomNavBar: React.FC<BottomNavBarProps> = ({
   currentTab,
   onSelectTab,
-  onOpenAddModal
+  onOpenAddModal,
+  onExportBackup,
+  pinnedCount = 0
 }) => {
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 pointer-events-none flex justify-center items-end pb-[max(env(safe-area-inset-bottom),12px)] px-3">
-      {/* Floating Glassmorphic Pill */}
-      <div className="pointer-events-auto w-full max-w-[420px] rounded-[32px] p-1.5 sm:p-2 bg-white/95 dark:bg-[#1a2030]/95 backdrop-blur-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-[0_16px_40px_rgba(0,0,0,0.14),0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-between gap-0.5 sm:gap-1 transition-all">
-        {/* Tab 1: Công cụ */}
-        <button
-          onClick={() => onSelectTab('tools')}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer min-w-0 ${
-            currentTab === 'tools'
-              ? 'text-[#004ac6] dark:text-[#89b4ff]'
-              : 'text-[#5a5e72] dark:text-[#9da2ba] hover:text-[#131b2e] dark:hover:text-white'
-          }`}
-          type="button"
-        >
-          <div className={`px-2.5 py-0.5 rounded-full transition-all flex items-center justify-center ${
-            currentTab === 'tools' ? 'bg-[#004ac6]/10 dark:bg-[#89b4ff]/15' : 'bg-transparent'
-          }`}>
-            <span className={`material-symbols-outlined text-[21px] ${currentTab === 'tools' ? 'fill' : ''}`}>
-              grid_view
-            </span>
-          </div>
-          <span className="text-[10.5px] sm:text-[11px] font-semibold mt-0.5 whitespace-nowrap tracking-tight">
-            Công cụ
-          </span>
-        </button>
-
-        {/* Tab 2: Danh mục */}
-        <button
-          onClick={() => onSelectTab('categories')}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer min-w-0 ${
-            currentTab === 'categories'
-              ? 'text-[#004ac6] dark:text-[#89b4ff]'
-              : 'text-[#5a5e72] dark:text-[#9da2ba] hover:text-[#131b2e] dark:hover:text-white'
-          }`}
-          type="button"
-        >
-          <div className={`px-2.5 py-0.5 rounded-full transition-all flex items-center justify-center ${
-            currentTab === 'categories' ? 'bg-[#004ac6]/10 dark:bg-[#89b4ff]/15' : 'bg-transparent'
-          }`}>
-            <span className={`material-symbols-outlined text-[21px] ${currentTab === 'categories' ? 'fill' : ''}`}>
-              category
-            </span>
-          </div>
-          <span className="text-[10.5px] sm:text-[11px] font-semibold mt-0.5 whitespace-nowrap tracking-tight">
-            Danh mục
-          </span>
-        </button>
-
-        {/* Center Floating Action Button (+) */}
-        <div className="flex items-center justify-center px-1 shrink-0">
+    <div className="fixed bottom-3 left-0 right-0 z-50 pointer-events-none px-4 flex justify-center safe-bottom-bar md:hidden">
+      <nav 
+        className="w-full max-w-sm pointer-events-auto liquid-glass rounded-2xl shadow-liquid border border-white/80 dark:border-white/10 px-2 py-1.5 backdrop-blur-2xl transition-all"
+        data-purpose="mobile-bottom-navigation"
+      >
+        <div className="flex items-center justify-between relative px-1">
+          {/* Tab 1: Tất cả công cụ */}
           <button
-            onClick={onOpenAddModal}
-            aria-label="Thao tác thêm nhanh"
-            className="w-12 h-12 -mt-5 rounded-full bg-gradient-to-tr from-[#004ac6] via-[#1a64e8] to-[#2563eb] text-white flex items-center justify-center shadow-[0_6px_20px_rgba(0,74,198,0.42),inset_0_1px_1px_rgba(255,255,255,0.4)] active:scale-90 transition-transform cursor-pointer border-2 border-white dark:border-[#1a2030]"
+            onClick={() => onSelectTab('tools')}
+            className={`flex flex-col items-center justify-center w-12 transition-colors cursor-pointer ${
+              currentTab === 'tools'
+                ? 'text-blue-600 dark:text-blue-400 font-bold'
+                : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-medium'
+            }`}
             type="button"
           >
-            <span className="material-symbols-outlined text-[26px]">add</span>
+            <span className={`material-symbols-outlined text-[20px] ${currentTab === 'tools' ? 'fill' : ''}`}>
+              grid_view
+            </span>
+            <span className="text-[10px] mt-0.5 tracking-tight">Tất cả</span>
           </button>
-        </div>
 
-        {/* Tab 3: Yêu thích */}
-        <button
-          onClick={() => onSelectTab('pinned')}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer min-w-0 ${
-            currentTab === 'pinned'
-              ? 'text-[#004ac6] dark:text-[#89b4ff]'
-              : 'text-[#5a5e72] dark:text-[#9da2ba] hover:text-[#131b2e] dark:hover:text-white'
-          }`}
-          type="button"
-        >
-          <div className={`px-2.5 py-0.5 rounded-full transition-all flex items-center justify-center ${
-            currentTab === 'pinned' ? 'bg-[#004ac6]/10 dark:bg-[#89b4ff]/15' : 'bg-transparent'
-          }`}>
-            <span className={`material-symbols-outlined text-[21px] ${currentTab === 'pinned' ? 'fill' : ''}`}>
+          {/* Tab 2: Yêu thích */}
+          <button
+            onClick={() => onSelectTab('pinned')}
+            className={`flex flex-col items-center justify-center w-12 transition-colors relative cursor-pointer ${
+              currentTab === 'pinned'
+                ? 'text-blue-600 dark:text-blue-400 font-bold'
+                : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-medium'
+            }`}
+            type="button"
+          >
+            <span className={`material-symbols-outlined text-[20px] ${currentTab === 'pinned' ? 'fill' : ''}`}>
               bookmark
             </span>
-          </div>
-          <span className="text-[10.5px] sm:text-[11px] font-semibold mt-0.5 whitespace-nowrap tracking-tight">
-            Yêu thích
-          </span>
-        </button>
+            <span className="text-[10px] mt-0.5 tracking-tight">Yêu thích</span>
+            {pinnedCount > 0 && (
+              <span className="absolute -top-1 right-1 px-1 py-0.1 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-200 text-[9px] font-bold rounded-full border border-white/80 dark:border-white/20 leading-none">
+                {pinnedCount}
+              </span>
+            )}
+          </button>
 
-        {/* Tab 4: Cài đặt */}
-        <button
-          onClick={() => onSelectTab('settings')}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-2xl transition-all active:scale-95 cursor-pointer min-w-0 ${
-            currentTab === 'settings'
-              ? 'text-[#004ac6] dark:text-[#89b4ff]'
-              : 'text-[#5a5e72] dark:text-[#9da2ba] hover:text-[#131b2e] dark:hover:text-white'
-          }`}
-          type="button"
-        >
-          <div className={`px-2.5 py-0.5 rounded-full transition-all flex items-center justify-center ${
-            currentTab === 'settings' ? 'bg-[#004ac6]/10 dark:bg-[#89b4ff]/15' : 'bg-transparent'
-          }`}>
-            <span className={`material-symbols-outlined text-[21px] ${currentTab === 'settings' ? 'fill' : ''}`}>
+          {/* Center Floating Liquid Drop (+) Button */}
+          <div className="flex items-center justify-center -mt-5">
+            <button
+              onClick={onOpenAddModal}
+              aria-label="Thêm liên kết mới"
+              className="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-500 text-white flex items-center justify-center shadow-liquid-glow ring-2 ring-white/90 dark:ring-[#131929] active:scale-90 hover:brightness-105 transition-all focus:outline-none cursor-pointer"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-[24px]">add</span>
+            </button>
+          </div>
+
+          {/* Tab 3: Sao lưu JSON */}
+          <button
+            onClick={onExportBackup}
+            className="flex flex-col items-center justify-center w-12 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+            type="button"
+          >
+            <span className="material-symbols-outlined text-[20px]">
+              download
+            </span>
+            <span className="text-[10px] font-medium mt-0.5 tracking-tight">Sao lưu</span>
+          </button>
+
+          {/* Tab 4: Cài đặt */}
+          <button
+            onClick={() => onSelectTab('settings')}
+            className={`flex flex-col items-center justify-center w-12 transition-colors cursor-pointer ${
+              currentTab === 'settings'
+                ? 'text-blue-600 dark:text-blue-400 font-bold'
+                : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-medium'
+            }`}
+            type="button"
+          >
+            <span className={`material-symbols-outlined text-[20px] ${currentTab === 'settings' ? 'fill' : ''}`}>
               tune
             </span>
-          </div>
-          <span className="text-[10.5px] sm:text-[11px] font-semibold mt-0.5 whitespace-nowrap tracking-tight">
-            Cài đặt
-          </span>
-        </button>
-      </div>
-    </nav>
+            <span className="text-[10px] font-medium mt-0.5 tracking-tight">Cài đặt</span>
+          </button>
+        </div>
+      </nav>
+    </div>
   );
 };

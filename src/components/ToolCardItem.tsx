@@ -29,136 +29,151 @@ export const ToolCardItem: React.FC<ToolCardItemProps> = ({
     hostname = tool.url;
   }
 
-  const handleCardClick = () => {
-    onOpenTool(tool);
-    window.open(tool.url, '_blank', 'noopener,noreferrer');
-  };
-
   return (
-    <div 
-      onClick={handleCardClick}
-      className="p-4 rounded-xl bg-white dark:bg-[#1c2336] shadow-sm hover:shadow-md border border-black/[0.04] dark:border-white/[0.06] flex flex-col gap-3 transition-all duration-150 active:scale-[0.99] cursor-pointer relative"
-    >
-      {/* Top Header */}
-      <div className="flex items-start justify-between gap-2.5">
-        <div className="flex items-start gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-[#f2f3ff] dark:bg-[#242b40] flex items-center justify-center flex-shrink-0 text-[#004ac6] dark:text-[#89b4ff]">
-            <span className="material-symbols-outlined text-[22px]">
+    <article className="liquid-glass rounded-xl p-2.5 hover:border-blue-300 transition-all shadow-xs relative group">
+      <div className="flex items-center justify-between gap-2">
+        {/* Left Clickable Area (Icon, Name, Label, Domain) */}
+        <a
+          href={tool.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => onOpenTool(tool)}
+          className="flex items-center gap-2.5 min-w-0 flex-1 no-underline cursor-pointer"
+          title={tool.name}
+        >
+          <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 ring-1 ring-blue-500/20 group-hover:scale-105 transition-transform">
+            <span className="material-symbols-outlined text-[17px]">
               {tool.icon || 'link'}
             </span>
           </div>
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2">
-              <h4 className="text-[14px] font-semibold text-[#131b2e] dark:text-[#eef0ff] truncate leading-tight">
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 leading-tight flex-wrap">
+              <h3 className="text-xs font-semibold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 {tool.name}
-              </h4>
-              <span className="px-2 py-0.5 rounded-full bg-[#eaedff] dark:bg-[#242b40] text-[11px] font-semibold text-[#004ac6] dark:text-[#89b4ff] flex-shrink-0">
-                {tool.label}
-              </span>
+              </h3>
+              {tool.label && (
+                <span className="px-1.5 py-0.2 text-[9.5px] font-medium rounded-full bg-blue-50/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 shrink-0">
+                  {tool.label}
+                </span>
+              )}
             </div>
-            <p className="text-[12px] text-[#737686] dark:text-[#898d9e] truncate mt-0.5 font-mono">
+            <p className="text-2xs text-slate-400 dark:text-slate-500 font-mono truncate mt-0.5">
               {hostname}
             </p>
           </div>
-        </div>
+        </a>
 
-        {/* Action Menu button */}
-        <div className="relative" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => setShowDropdown(!showDropdown)}
-            aria-label="Thao tác khác"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-[#737686] hover:text-[#131b2e] dark:hover:text-[#eef0ff] hover:bg-[#f2f3ff] dark:hover:bg-[#242b40] transition-colors cursor-pointer"
-            type="button"
-          >
-            <span className="material-symbols-outlined text-[20px]">more_vert</span>
-          </button>
-
-          {showDropdown && (
-            <>
-              <div 
-                className="fixed inset-0 z-20" 
-                onClick={() => setShowDropdown(false)} 
-              />
-              <div className="absolute right-0 top-9 z-30 w-36 bg-white dark:bg-[#242b40] rounded-xl shadow-lg border border-black/[0.06] dark:border-white/[0.08] p-1.5 flex flex-col gap-1 text-xs">
-                <button
-                  onClick={() => {
-                    setShowDropdown(false);
-                    onEdit(tool);
-                  }}
-                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-left hover:bg-[#f2f3ff] dark:hover:bg-[#181d2c] text-[#131b2e] dark:text-[#eef0ff] cursor-pointer"
-                  type="button"
-                >
-                  <span className="material-symbols-outlined text-[16px] text-[#004ac6]">edit</span>
-                  <span>Sửa liên kết</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setShowDropdown(false);
-                    onTogglePin(tool.id);
-                  }}
-                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-left hover:bg-[#f2f3ff] dark:hover:bg-[#181d2c] text-[#131b2e] dark:text-[#eef0ff] cursor-pointer"
-                  type="button"
-                >
-                  <span className="material-symbols-outlined text-[16px] text-amber-500">
-                    {tool.isPinned ? 'bookmark_remove' : 'push_pin'}
-                  </span>
-                  <span>{tool.isPinned ? 'Bỏ ghim' : 'Ghim đầu trang'}</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setShowDropdown(false);
-                    onDelete(tool.id);
-                  }}
-                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-left hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 cursor-pointer"
-                  type="button"
-                >
-                  <span className="material-symbols-outlined text-[16px]">delete</span>
-                  <span>Xóa</span>
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Bottom Action Row */}
-      <div className="flex items-center justify-between pt-1 border-t border-black/[0.03] dark:border-white/[0.04]">
-        <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+        {/* Right Actions */}
+        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+          {/* Copy Button */}
           <button
             onClick={() => onCopyUrl(tool.url)}
-            className="h-8 px-2.5 rounded-lg bg-[#f2f3ff] dark:bg-[#242b40] text-[#434655] dark:text-[#b0b4c8] text-xs font-medium flex items-center gap-1 hover:text-[#004ac6] active:bg-[#eaedff] transition-colors cursor-pointer"
+            aria-label="Sao chép liên kết"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/70 dark:hover:bg-white/10 active:scale-95 transition cursor-pointer"
+            title="Sao chép liên kết"
             type="button"
           >
             <span className="material-symbols-outlined text-[15px]">content_copy</span>
-            <span>Sao chép</span>
           </button>
 
+          {/* Share Button (hidden on narrow mobile to keep ultra-compact, or visible) */}
           <button
             onClick={() => onShare(tool)}
             aria-label="Chia sẻ"
-            className="h-8 w-8 rounded-lg bg-[#f2f3ff] dark:bg-[#242b40] text-[#434655] dark:text-[#b0b4c8] flex items-center justify-center hover:text-[#004ac6] active:bg-[#eaedff] transition-colors cursor-pointer"
+            className="hidden xs:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/70 dark:hover:bg-white/10 active:scale-95 transition cursor-pointer"
+            title="Chia sẻ"
             type="button"
           >
-            <span className="material-symbols-outlined text-[16px]">share</span>
+            <span className="material-symbols-outlined text-[15px]">share</span>
           </button>
-        </div>
 
-        <a
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpenTool(tool);
-          }}
-          className="h-8 px-3 rounded-lg bg-[#004ac6] text-white text-xs font-semibold flex items-center gap-1 shadow-sm hover:bg-[#2563eb] active:scale-95 transition-all cursor-pointer"
-          href={tool.url}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <span>Mở liên kết</span>
-          <span className="material-symbols-outlined text-[16px]">arrow_outward</span>
-        </a>
+          {/* Primary Open Button */}
+          <a
+            href={tool.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => onOpenTool(tool)}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-2xs font-semibold shadow-xs shadow-blue-500/25 active:scale-95 transition no-underline cursor-pointer"
+            title="Mở liên kết"
+          >
+            <span>Mở</span>
+            <span className="material-symbols-outlined text-[13px]">arrow_outward</span>
+          </a>
+
+          {/* More options menu */}
+          <div className="relative">
+            <button
+              onClick={() => setShowDropdown(!showDropdown)}
+              aria-label="Thao tác khác"
+              className="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/70 dark:hover:bg-white/10 transition cursor-pointer"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-[16px]">more_vert</span>
+            </button>
+
+            {showDropdown && (
+              <>
+                <div 
+                  className="fixed inset-0 z-20" 
+                  onClick={() => setShowDropdown(false)} 
+                />
+                <div className="absolute right-0 top-7 z-30 w-36 bg-white dark:bg-[#1f2638] rounded-xl shadow-lg border border-black/[0.06] dark:border-white/[0.08] p-1 flex flex-col gap-0.5 text-xs">
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      onEdit(tool);
+                    }}
+                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-left hover:bg-slate-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 cursor-pointer"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-[15px] text-blue-600">edit</span>
+                    <span>Sửa liên kết</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      onTogglePin(tool.id);
+                    }}
+                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-left hover:bg-slate-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 cursor-pointer"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-[15px] text-amber-500">
+                      {tool.isPinned ? 'bookmark_remove' : 'push_pin'}
+                    </span>
+                    <span>{tool.isPinned ? 'Bỏ ghim' : 'Ghim nhanh'}</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      onShare(tool);
+                    }}
+                    className="xs:hidden flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-left hover:bg-slate-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 cursor-pointer"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-[15px] text-teal-600">share</span>
+                    <span>Chia sẻ</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      onDelete(tool.id);
+                    }}
+                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-left hover:bg-red-50 dark:hover:bg-red-950/40 text-red-600 dark:text-red-400 cursor-pointer"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">delete</span>
+                    <span>Xóa</span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </article>
   );
 };

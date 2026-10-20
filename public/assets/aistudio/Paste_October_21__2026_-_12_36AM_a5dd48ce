@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+
+<html class="h-full antialiased" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>ToolHub - Quản lý liên kết &amp; Công cụ</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+            }
+          },
+          fontSize: {
+            '2xs': ['10px', '13px'],
+            'xs': ['11.5px', '15px'],
+            'sm': ['13px', '17px'],
+          },
+          boxShadow: {
+            'liquid': '0 8px 32px 0 rgba(31, 38, 135, 0.08)',
+            'liquid-glow': '0 4px 20px -2px rgba(37, 99, 235, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: CustomStyles -->
+<style data-purpose="scrollbar-utilities">
+    /* Ẩn scrollbar cho khu vực cuộn ngang nhưng vẫn scroll mượt trên iOS */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+  </style>
+<style data-purpose="layout-optimizations">
+    /* Cố định chiều cao và tối ưu safe-area cho iOS */
+    body {
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+    }
+    .safe-bottom-bar {
+      padding-bottom: max(env(safe-area-inset-bottom, 6px), 6px);
+    }
+    /* Liquid glass highlights */
+    .liquid-glass {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.03), inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+    }
+    .liquid-pill {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+  </style>
+<!-- END: CustomStyles -->
+</head>
+<body class="min-h-screen text-slate-800 bg-[#f4f7fc] font-sans selection:bg-blue-100 selection:text-blue-700 relative overflow-x-hidden">
+<!-- Ambient Background Glows (Kính lỏng khúc xạ đa sắc dịu nhẹ) -->
+<div aria-hidden="true" class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+<div class="absolute -top-24 -left-20 w-80 h-80 bg-blue-300/35 rounded-full blur-3xl mix-blend-multiply filter animate-pulse" style="animation-duration: 8s;"></div>
+<div class="absolute top-1/4 -right-28 w-96 h-96 bg-cyan-200/40 rounded-full blur-3xl mix-blend-multiply filter"></div>
+<div class="absolute top-2/3 -left-24 w-80 h-80 bg-indigo-200/35 rounded-full blur-3xl mix-blend-multiply filter"></div>
+<div class="absolute -bottom-20 right-4 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl mix-blend-multiply filter"></div>
+</div>
+<!-- BEGIN: TopBar -->
+<header class="sticky top-0 z-40 liquid-glass border-b border-white/60 px-3.5 py-2 transition-all">
+<div class="flex items-center justify-between gap-2 max-w-md mx-auto">
+<!-- Brand Logo & Firebase Status -->
+<div class="flex items-center gap-2 min-w-0" data-purpose="brand-status">
+<div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-sm shadow-blue-500/30 ring-1 ring-white/50 shrink-0">
+<!-- ToolHub Connected Node Icon -->
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24">
+<path d="M12 2a3 3 0 0 0-3 3c0 .35.06.68.17 1H6a3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h3.17c-.11.32-.17.65-.17 1a3 3 0 0 0 3 3c.35.06.68-.06 1-.17V21a1 1 0 1 0 2 0v-3.17c.32.11.65.17 1 .17a3 3 0 0 0 3-3c0-.35-.06-.68-.17-1H18a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-3.17c.11-.32.17-.65.17-1a3 3 0 0 0-3-3zm0 2a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-6 6a1 1 0 0 1 1-1h1.17c.2.58.55 1.09 1 1.48v1.04c-.45.39-.8.9-1 1.48H7a1 1 0 0 1-1-1v-2zm6 3a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm6-1a1 1 0 0 1-1 1h-1.17a2.98 2.98 0 0 0-1-1.48V8.48c.45-.39.8-.9 1-1.48H17a1 1 0 0 1 1 1v2zm-6 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+</svg>
+</div>
+<div class="flex flex-col truncate">
+<div class="flex items-center gap-1.5 leading-none">
+<span class="font-bold text-[14px] tracking-tight text-slate-900">ToolHub</span>
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-sm shadow-emerald-400"></span>
+</div>
+<span class="text-2xs text-slate-500 mt-0.5 truncate font-medium">Firebase • Boa Hung</span>
+</div>
+</div>
+<!-- Quick Action Controls -->
+<div class="flex items-center gap-1 shrink-0" data-purpose="header-actions">
+<!-- Quick JSON Backup Icon -->
+<button aria-label="Sao lưu nhanh" class="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white/60 active:scale-95 transition-all">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- Dark mode switch -->
+<button aria-label="Chuyển chế độ giao diện" class="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white/60 active:scale-95 transition-all">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<!-- User Profile Pill -->
+<div class="flex items-center gap-1 liquid-pill pl-0.5 pr-2 py-0.5 rounded-full shadow-sm">
+<div class="w-5 h-5 rounded-full bg-gradient-to-tr from-amber-600 to-amber-500 text-white flex items-center justify-center font-bold text-2xs ring-1 ring-white shadow-sm">
+<span>B</span>
+</div>
+<span class="text-2xs font-semibold text-slate-700">Boa</span>
+</div>
+</div>
+</div>
+</header>
+<!-- END: TopBar -->
+<!-- BEGIN: MainContent -->
+<main class="max-w-md mx-auto px-3.5 pt-2.5 space-y-3.5">
+<!-- Search Input Banner: Siêu mỏng thanh lịch -->
+<section data-purpose="search-box">
+<div class="relative flex items-center">
+<svg class="w-3.5 h-3.5 text-blue-500/80 absolute left-3 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<input class="w-full text-xs pl-8 pr-8 py-1.5 liquid-glass rounded-xl placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 shadow-sm transition" placeholder="Tìm công cụ, tên miền, nhãn..." type="search"/>
+<span class="absolute right-2 px-1.5 py-0.2 bg-white/70 text-slate-400 border border-white/60 rounded text-2xs font-mono shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]">/</span>
+</div>
+</section>
+<!-- Category Filter Bar (Horizontal Slider): Phong cách kính lỏng nhẹ nhàng -->
+<section class="-mx-3.5 px-3.5 overflow-x-auto no-scrollbar flex items-center gap-1.5 py-0.5" data-purpose="category-pills">
+<button class="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm shadow-blue-500/30 flex items-center gap-1 ring-1 ring-white/30">
+<span>Tất cả</span>
+<span class="bg-white/20 text-white px-1.5 py-0.2 rounded-full text-2xs">7</span>
+</button>
+<button class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full liquid-pill text-slate-700 hover:bg-white/90 flex items-center gap-1 active:scale-95 transition shadow-sm">
+<span>Bảo hành</span>
+<span class="text-slate-400 text-2xs font-mono">4</span>
+</button>
+<button class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full liquid-pill text-slate-700 hover:bg-white/90 flex items-center gap-1 active:scale-95 transition shadow-sm">
+<span>Giá thu cũ</span>
+<span class="text-slate-400 text-2xs font-mono">2</span>
+</button>
+<button class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full liquid-pill text-slate-700 hover:bg-white/90 flex items-center gap-1 active:scale-95 transition shadow-sm">
+<span>tech</span>
+<span class="text-slate-400 text-2xs font-mono">0</span>
+</button>
+<button class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full liquid-pill text-slate-700 hover:bg-white/90 flex items-center gap-1 active:scale-95 transition shadow-sm">
+<span>Nghiệp vụ</span>
+<span class="text-slate-400 text-2xs font-mono">1</span>
+</button>
+<button class="shrink-0 text-xs font-semibold px-2 py-1 rounded-full border border-blue-400/50 text-blue-600 bg-blue-50/60 hover:bg-blue-100/70 flex items-center gap-1 active:scale-95 transition">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Thêm</span>
+</button>
+</section>
+<!-- Quick Access Section (Ghim truy cập nhanh) - Ultra Compact Glass Cards -->
+<section data-purpose="quick-access">
+<div class="flex items-center justify-between mb-1.5 px-0.5">
+<div class="flex items-center gap-1.5">
+<svg class="w-3 h-3 text-blue-600 fill-blue-600" viewbox="0 0 24 24">
+<path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"></path>
+</svg>
+<h2 class="text-2xs font-bold text-slate-700 uppercase tracking-wider">Ghim truy cập nhanh</h2>
+</div>
+<span class="text-2xs text-slate-400 font-medium">Một chạm mở ngay</span>
+</div>
+<!-- Compact horizontal glass cards -->
+<div class="-mx-3.5 px-3.5 overflow-x-auto no-scrollbar flex gap-2 pb-0.5">
+<!-- Pinned Card 1 -->
+<article class="w-32 shrink-0 liquid-glass p-2 rounded-xl flex flex-col justify-between hover:border-blue-300 transition-all active:scale-[0.98]">
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<span class="w-5 h-5 rounded-md bg-blue-500/10 text-blue-600 flex items-center justify-center ring-1 ring-blue-500/20">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</span>
+<button aria-label="Sao chép" class="text-slate-400 hover:text-slate-600 p-0.5">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+<p class="text-xs font-semibold text-slate-800 truncate leading-snug">Bảng giá nhập c...</p>
+</div>
+<a class="mt-1.5 pt-1 border-t border-slate-100/60 text-2xs font-semibold text-blue-600 flex items-center justify-between hover:text-blue-700" href="#">
+<span>Mở ngay</span>
+<svg class="w-2.5 h-2.5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+</article>
+<!-- Pinned Card 2 -->
+<article class="w-32 shrink-0 liquid-glass p-2 rounded-xl flex flex-col justify-between hover:border-indigo-300 transition-all active:scale-[0.98]">
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<span class="w-5 h-5 rounded-md bg-indigo-500/10 text-indigo-600 flex items-center justify-center ring-1 ring-indigo-500/20">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</span>
+<button aria-label="Sao chép" class="text-slate-400 hover:text-slate-600 p-0.5">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+<p class="text-xs font-semibold text-slate-800 truncate leading-snug">Trợ giá Cellphones</p>
+</div>
+<a class="mt-1.5 pt-1 border-t border-slate-100/60 text-2xs font-semibold text-blue-600 flex items-center justify-between hover:text-blue-700" href="#">
+<span>Mở ngay</span>
+<svg class="w-2.5 h-2.5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+</article>
+<!-- Pinned Card 3 -->
+<article class="w-32 shrink-0 liquid-glass p-2 rounded-xl flex flex-col justify-between hover:border-cyan-300 transition-all active:scale-[0.98]">
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<span class="w-5 h-5 rounded-md bg-cyan-500/10 text-cyan-600 flex items-center justify-center ring-1 ring-cyan-500/20">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</span>
+<button aria-label="Sao chép" class="text-slate-400 hover:text-slate-600 p-0.5">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+<p class="text-xs font-semibold text-slate-800 truncate leading-snug">Tra bảo hành sa...</p>
+</div>
+<a class="mt-1.5 pt-1 border-t border-slate-100/60 text-2xs font-semibold text-blue-600 flex items-center justify-between hover:text-blue-700" href="#">
+<span>Mở ngay</span>
+<svg class="w-2.5 h-2.5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+</article>
+<!-- Pinned Card 4 -->
+<article class="w-32 shrink-0 liquid-glass p-2 rounded-xl flex flex-col justify-between hover:border-purple-300 transition-all active:scale-[0.98]">
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<span class="w-5 h-5 rounded-md bg-purple-500/10 text-purple-600 flex items-center justify-center ring-1 ring-purple-500/20">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</span>
+<button aria-label="Sao chép" class="text-slate-400 hover:text-slate-600 p-0.5">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+<p class="text-xs font-semibold text-slate-800 truncate leading-snug">Nghiệp vụ kỹ th...</p>
+</div>
+<a class="mt-1.5 pt-1 border-t border-slate-100/60 text-2xs font-semibold text-blue-600 flex items-center justify-between hover:text-blue-700" href="#">
+<span>Mở ngay</span>
+<svg class="w-2.5 h-2.5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+</article>
+<!-- Pinned Card 5 -->
+<article class="w-32 shrink-0 liquid-glass p-2 rounded-xl flex flex-col justify-between hover:border-blue-300 transition-all active:scale-[0.98]">
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<span class="w-5 h-5 rounded-md bg-blue-500/10 text-blue-600 flex items-center justify-center ring-1 ring-blue-500/20">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</span>
+<button aria-label="Sao chép" class="text-slate-400 hover:text-slate-600 p-0.5">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+<p class="text-xs font-semibold text-slate-800 truncate leading-snug">Check xiaomi qu...</p>
+</div>
+<a class="mt-1.5 pt-1 border-t border-slate-100/60 text-2xs font-semibold text-blue-600 flex items-center justify-between hover:text-blue-700" href="#">
+<span>Mở ngay</span>
+<svg class="w-2.5 h-2.5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+</article>
+</div>
+</section>
+<!-- All Tools List Section - Ultra-compact Micro-Cards -->
+<section class="space-y-2 pt-0.5" data-purpose="all-tools-list">
+<div class="flex items-center justify-between px-0.5">
+<h2 class="text-2xs font-bold text-slate-700 uppercase tracking-wider">
+  Tất cả liên kết <span class="text-blue-600 font-semibold">(7)</span>
+</h2>
+<span class="text-2xs text-slate-400 flex items-center gap-1 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+  Đồng bộ tức thì
+</span>
+</div>
+<!-- Item Micro-Card 1: Bảng giá nhập cellphones -->
+<article class="liquid-glass rounded-xl p-2.5 hover:border-blue-300 transition-all shadow-sm">
+<div class="flex items-center justify-between gap-2">
+<!-- Left info -->
+<div class="flex items-center gap-2.5 min-w-0 flex-1">
+<div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0 ring-1 ring-blue-500/20">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5 leading-tight">
+<h3 class="text-xs font-semibold text-slate-900 truncate">Bảng giá nhập cellphones</h3>
+<span class="px-1.5 py-0.2 text-[9.5px] font-medium rounded-full bg-blue-50/80 text-blue-700 border border-blue-200/50 shrink-0">Thu cũ</span>
+</div>
+<p class="text-2xs text-slate-400 font-mono truncate mt-0.5">dieuphuc.sg.larksuite.com</p>
+</div>
+</div>
+<!-- Right compact actions -->
+<div class="flex items-center gap-1 shrink-0">
+<button aria-label="Sao chép" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-white/70 active:scale-95 transition" title="Sao chép liên kết">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<button aria-label="Chia sẻ" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-white/70 active:scale-95 transition" title="Chia sẻ">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<a class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-2xs font-semibold shadow-sm shadow-blue-500/25 active:scale-95 transition" href="#" title="Mở liên kết">
+<span>Mở</span>
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+</div>
+</div>
+</article>
+<!-- Item Micro-Card 2: Trợ giá Cellphones -->
+<article class="liquid-glass rounded-xl p-2.5 hover:border-indigo-300 transition-all shadow-sm">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2.5 min-w-0 flex-1">
+<div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center shrink-0 ring-1 ring-indigo-500/20">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5 leading-tight">
+<h3 class="text-xs font-semibold text-slate-900 truncate">Trợ giá Cellphones</h3>
+<span class="px-1.5 py-0.2 text-[9.5px] font-medium rounded-full bg-blue-50/80 text-blue-700 border border-blue-200/50 shrink-0">Nhập cũ</span>
+</div>
+<p class="text-2xs text-slate-400 font-mono truncate mt-0.5">dieuphuc.sg.larksuite.com</p>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<button aria-label="Sao chép" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-white/70 active:scale-95 transition" title="Sao chép liên kết">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<button aria-label="Chia sẻ" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-white/70 active:scale-95 transition" title="Chia sẻ">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<a class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-2xs font-semibold shadow-sm shadow-blue-500/25 active:scale-95 transition" href="#" title="Mở liên kết">
+<span>Mở</span>
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+</div>
+</div>
+</article>
+<!-- Item Micro-Card 3: Tra bảo hành Samsung Care+ -->
+<article class="liquid-glass rounded-xl p-2.5 hover:border-cyan-300 transition-all shadow-sm">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2.5 min-w-0 flex-1">
+<div class="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-600 flex items-center justify-center shrink-0 ring-1 ring-cyan-500/20">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5 leading-tight">
+<h3 class="text-xs font-semibold text-slate-900 truncate">Tra bảo hành Samsung Care+</h3>
+<span class="px-1.5 py-0.2 text-[9.5px] font-medium rounded-full bg-cyan-50/80 text-cyan-700 border border-cyan-200/50 shrink-0">Bảo hành</span>
+</div>
+<p class="text-2xs text-slate-400 font-mono truncate mt-0.5">samsung.com/vn/support</p>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<button aria-label="Sao chép" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-white/70 active:scale-95 transition" title="Sao chép liên kết">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<button aria-label="Chia sẻ" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-white/70 active:scale-95 transition" title="Chia sẻ">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<a class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-2xs font-semibold shadow-sm shadow-blue-500/25 active:scale-95 transition" href="#" title="Mở liên kết">
+<span>Mở</span>
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+</div>
+</div>
+</article>
+<!-- Item Micro-Card 4: Nghiệp vụ kỹ thuật FPT/Apple -->
+<article class="liquid-glass rounded-xl p-2.5 hover:border-purple-300 transition-all shadow-sm">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2.5 min-w-0 flex-1">
+<div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center shrink-0 ring-1 ring-purple-500/20">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center gap-1.5 leading-tight">
+<h3 class="text-xs font-semibold text-slate-900 truncate">Nghiệp vụ kỹ thuật FPT/Apple</h3>
+<span class="px-1.5 py-0.2 text-[9.5px] font-medium rounded-full bg-purple-50/80 text-purple-700 border border-purple-200/50 shrink-0">Nghiệp vụ</span>
+</div>
+<p class="text-2xs text-slate-400 font-mono truncate mt-0.5">internal-portal.company.vn</p>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<button aria-label="Sao chép" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-white/70 active:scale-95 transition" title="Sao chép liên kết">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<button aria-label="Chia sẻ" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-white/70 active:scale-95 transition" title="Chia sẻ">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+<a class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-2xs font-semibold shadow-sm shadow-blue-500/25 active:scale-95 transition" href="#" title="Mở liên kết">
+<span>Mở</span>
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+</div>
+</div>
+</article>
+</section>
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: Floating Liquid Glass Bottom Navigation Bar -->
+<div class="fixed bottom-3 left-0 right-0 z-50 pointer-events-none px-4 flex justify-center safe-bottom-bar">
+<nav class="w-full max-w-sm pointer-events-auto liquid-glass rounded-2xl shadow-liquid border border-white/80 px-2 py-1.5" data-purpose="mobile-bottom-navigation">
+<div class="flex items-center justify-between relative px-1">
+<!-- Tab: Tất cả công cụ (Active) -->
+<a class="flex flex-col items-center justify-center w-12 text-blue-600 transition-colors" href="#">
+<svg class="w-4 h-4 fill-current drop-shadow-sm" viewbox="0 0 24 24">
+<path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"></path>
+</svg>
+<span class="text-[10px] font-bold mt-0.5 tracking-tight">Tất cả</span>
+</a>
+<!-- Tab: Yêu thích -->
+<a class="flex flex-col items-center justify-center w-12 text-slate-400 hover:text-slate-700 transition-colors relative" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium mt-0.5 tracking-tight">Yêu thích</span>
+<span class="absolute -top-0.5 right-1 px-1 py-0.1 bg-blue-100 text-blue-700 text-[9px] font-bold rounded-full border border-white/80 leading-none">5</span>
+</a>
+<!-- Center Floating Liquid Drop (+) Button -->
+<div class="flex items-center justify-center -mt-5">
+<button aria-label="Thêm liên kết mới" class="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-700 via-blue-600 to-cyan-500 text-white flex items-center justify-center shadow-liquid-glow ring-2 ring-white/90 active:scale-90 hover:brightness-105 transition-all focus:outline-none">
+<svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 5v14m7-7H5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+<!-- Tab: Sao lưu JSON -->
+<a class="flex flex-col items-center justify-center w-12 text-slate-400 hover:text-slate-700 transition-colors" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium mt-0.5 tracking-tight">Sao lưu</span>
+</a>
+<!-- Tab: Cài đặt -->
+<a class="flex flex-col items-center justify-center w-12 text-slate-400 hover:text-slate-700 transition-colors" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium mt-0.5 tracking-tight">Cài đặt</span>
+</a>
+</div>
+</nav>
+</div>
+<!-- END: Floating Liquid Glass Bottom Navigation Bar -->
+</body></html>
